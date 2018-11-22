@@ -1,21 +1,24 @@
 module.exports = errorHandler;
+var code = require('../common/status');
+var message = require('../common/message');
+var { response } = require('../common/response');
 
 function errorHandler(err, req, res, next) {
+   
     if (typeof (err) === 'string') {
         // custom application error
-        return res.status(400).json({ message: err });
+       return response(res, code.ALREADY_EXISTS, err)
     }
 
     if (err.name === 'ValidationError') {
-        // mongoose validation error
-        return res.status(400).json({ message: err.message });
+       return response(res, code.VALIDATION_ERROR, err.message)
     }
 
     if (err.name === 'UnauthorizedError') {
         // jwt authentication error
-        return res.status(401).json({ message: 'Invalid Token' });
+        return response(res, code.INVALID_TOKEN, message.INVALID_TOKEN)
     }
 
     // default to 500 server error
-    return res.status(500).json({ message: err.message });
+    return response(res, code.INTERNAL_SERVER_ERROR, err.message)
 }

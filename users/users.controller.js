@@ -1,27 +1,17 @@
-﻿const express = require('express');
-const router = express.Router();
-const userService = require('./user.service');
-
-// routes
-router.post('/authenticate', authenticate);
-router.post('/register', register);
-router.get('/', getAll);
-router.get('/current', getCurrent);
-router.get('/:id', getById);
-router.put('/:id', update);
-router.delete('/:id', _delete);
-
-module.exports = router;
+﻿var userService = require('../users/user.service');
+var code = require('../common/status');
+var message = require('../common/message');
+var { response } = require('../common/response');
 
 function authenticate(req, res, next) {
     userService.authenticate(req.body)
-        .then(user => user ? res.json(user) : res.status(400).json({ message: 'Username or password is incorrect' }))
+        .then(user => user ? response(res, code.EVERY_THING_IS_OK, message.SUCCESSFULLY_LOGIN, user) : response(res, code.NOT_FOUND,  message.INVALID_CREDENTIALS))
         .catch(err => next(err));
 }
 
 function register(req, res, next) {
     userService.create(req.body)
-        .then(() => res.json({}))
+        .then(() => res.status(200).json({ status:200, message: 'You have successfully singup' }))
         .catch(err => next(err));
 }
 
@@ -53,4 +43,15 @@ function _delete(req, res, next) {
     userService.delete(req.params.id)
         .then(() => res.json({}))
         .catch(err => next(err));
+}
+
+
+module.exports = {
+    authenticate,
+    register,
+    getAll,
+    getCurrent,
+    getById,
+    update,
+    _delete
 }
